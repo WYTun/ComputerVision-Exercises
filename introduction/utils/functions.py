@@ -20,8 +20,13 @@ def show_images(images: t_image_list, names: t_str_list) -> None:
     Returns:
         None
     """
-    raise NotImplementedError
-
+    grid = tile_images(images)
+    scale_percent = 0.7
+    display_grid = cv2.resize(grid, None, fx=scale_percent, fy=scale_percent, interpolation=cv2.INTER_AREA)
+    window_title = " | ".join(names)
+    cv2.imshow(window_title, display_grid)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 def save_images(images: t_image_list, filenames: t_str_list, **kwargs) -> None:
     """Saves one or more images at once.
@@ -35,7 +40,8 @@ def save_images(images: t_image_list, filenames: t_str_list, **kwargs) -> None:
     Returns:
         None
     """
-    raise NotImplementedError
+    for image, filename in zip(images, filenames):
+        cv2.imwrite(filename, image)
 
 
 def scale_down(image: np.array) -> np.array:
@@ -47,7 +53,9 @@ def scale_down(image: np.array) -> np.array:
     Returns:
         A numpy array with an opencv image half the size of the original image
     """
-    raise NotImplementedError
+    scale_size = 0.5
+    small_img = cv2.resize(image, None , fx = scale_size,fy=scale_size , interpolation=cv2.INTER_AREA)
+    return small_img
 
 
 def separate_channels(colored_image: np.array) -> t_image_triplet:
@@ -60,4 +68,52 @@ def separate_channels(colored_image: np.array) -> t_image_triplet:
         A tuple with three BGR images the first one containing only the Blue channel active, the second one only the
         green, and the third one only the red.
     """
-    raise NotImplementedError
+    blue_img = colored_image.copy()
+    green_img = colored_image.copy()
+    red_img = colored_image.copy()
+    blue_img[:, :, 1] = 0
+    blue_img[:, :, 2] = 0
+
+    green_img[:, :, 0] = 0
+    green_img[:, :, 2] = 0
+
+    red_img[:, :, 0] = 0
+    red_img[:, :, 1] = 0
+    return blue_img, green_img, red_img
+
+def tile_images(image_list, cols=None) -> None:
+    """Shows one or more images at once in a tiled manner.
+
+    Displaying a single image can be done by putting it in a list.
+
+    Args:
+        images: A list of numpy arrays in opencv format [HxW] or [HxWxC]
+        names: A list of strings that will appear as the window titles for each image
+
+    Returns:
+        None
+    """
+    if not image_list:
+        return None
+    
+    n = len(image_list)
+    if cols is None:
+        cols = int(np.ceil(np.sqrt(n)))
+    rows = int(np.ceil(n / cols))   
+    h,w =  image_list[0].shape[:2]
+    blank = np.zeros_like(image_list[0])
+    
+    all_rows = []
+    for r in range(rows):
+        row_images = []
+        for c in range(cols):
+            idx = r * cols + c
+            if idx < n:
+                row_images.append(image_list[idx])
+            else:
+                row_images.append(blank)
+        all_rows.append(np.hstack(row_images))
+
+    final_grid = np.vstack(all_rows)
+    return final_grid
+
