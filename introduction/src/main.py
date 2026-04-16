@@ -11,6 +11,9 @@ if __name__ == "__main__":
     ## Note: implement show_images in utils/functions.py
     input_path = os.path.join("resources", "img.png")
     output_path = os.path.join(os.getcwd(), "results")
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+    print(f"Directory created at: {output_path}")
     img = cv2.imread(input_path, cv2.IMREAD_COLOR)
     show_images([img], ["Display Image"])
 
