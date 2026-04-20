@@ -1,0 +1,5 @@
+- Set up : Install Python, openCV and creating venv
+- Tasks : load and show image
+        : scale image and show image
+        : manipulate color channel and show different colored images
+- addon : formating show_image func to avoid overlapping multiple image
